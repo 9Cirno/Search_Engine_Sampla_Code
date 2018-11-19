@@ -1,0 +1,98 @@
+import sqlite3
+import os
+
+
+if os.path.exists('info.db'):
+    conn = sqlite3.connect('info.db')
+    conn.isolation_level = None
+    print "Database connected successfully";
+else:
+    conn = sqlite3.connect('info.db')
+    conn.isolation_level = None
+    conn.execute('''
+                CREATE TABLE WordsIndex
+                (word char(255) NOT NULL,
+                position char(255) NOT NULL,
+                tf_idf real NOT NULL,
+                head_rank real NOT NULL,
+                ID INTEGER PRIMARY KEY AUTOINCREMENT);
+                ''')
+    conn.execute('''
+                CREATE TABLE Positions_urls
+                (position  NOT NULL,
+                url char(255) NOT NULL);
+                ''')
+    print "Table created successfully";
+
+
+#conn.execute("INSERT INTO WordsIndex (word,position,tf_idf,head_rank) \
+#      VALUES ('irvine','0/001','0.005','6')");
+
+#conn.execute("INSERT INTO Positions_urls (position,url) \
+#      VALUES ('0/001','ics.uci.edu')");
+
+
+#cursor = conn.execute("select * from WordsIndex where word = 'ics' and position in (select position from WordsIndex where word = 'irvine' order by tf_idf desc limit 100) order by tf_idf desc limit 100; ")
+cursor = conn.execute("select url from Positions_urls where position = '0/001'")
+for row in cursor:
+   print "word = ", row[0]
+
+
+
+
+for row in cursor:
+   print "word = ", row[0]
+   print "position = ", row[1]
+   print "tf-idf = ", row[2]
+   print "rank = ", row[3], "\n"
+
+#artificial intelligence
+print "Operation done successfully";
+conn.close()
+
+
+
+
+"""
+SELECT URL FROM
+positions_URLs
+where
+positions_URLs.position in
+(select position from
+words_positions
+where
+words_positions.word = 'irvine'
+
+SELECT URL FROM
+                    Positions_urls
+                    where
+                    Positions_urls.position in
+                    (select position from
+                    Words_positions
+                    where
+                    Words_positions.word = 'irvine');
+)
+
+
+
+"select * from WordsIndex where word = 'ics' order by tf_idf desc LIMIT 10"
+conn.execute("INSERT INTO Words_positions (word,position) \
+      VALUES ('irvine','0/001')");
+
+    conn.execute("INSERT INTO Positions_urls (position,url) \
+      VALUES ('0/001','ics.uci.edu')");
+
+
+
+
+      select * from WordsIndex
+                        where word = 'ics'
+                        and
+                        position in
+                        (select position from WordsIndex
+                        where word = 'irvine'
+                        order by tf_idf desc
+                        limit 100)
+                        order by tf_idf desc
+                        limit 100;
+"""

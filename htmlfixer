@@ -1,0 +1,87 @@
+import os
+import re
+import json
+from bs4 import BeautifulSoup
+import time
+
+
+file_bookkeeping = open("bookkeeping.json", 'r')
+content_bookkeeping = file_bookkeeping.read()
+urls = json.loads(content_bookkeeping)
+
+
+def tag_ranking(html_doc):
+    parttens = {}
+    soup = BeautifulSoup(html_doc, "html.parser")
+    soup.prettify()
+    content_list = soup.find_all('title')
+    for item in content_list:
+        for word in item.getText().split():
+            if parttens.__contains__(word):
+                parttens[word] += 3
+            else:
+                parttens[word] = 3
+    content_list = soup.find_all('h1')
+    for item in content_list:
+        for word in item.getText().split():
+            if parttens.__contains__(word):
+                parttens[word] += 2
+            else:
+                parttens[word] = 2
+    content_list = soup.find_all('h2')
+    for item in content_list:
+        for word in item.getText().split():
+            if parttens.__contains__(word):
+                parttens[word] += 1
+            else:
+                parttens[word] = 1
+    return parttens
+
+fsw = open("stopwords.txt", 'r')
+stopword_list = fsw.read().splitlines()
+
+for root, d, f in os.walk("../WEBPAGES_CLEAN/", topdown = False):
+    #print f
+    for name in f:
+        words_numbers = {}
+        counter = 0
+        path_patterns = os.path.join(root, name).split("/")
+        #print path_patterns
+        path = path_patterns[len(path_patterns) - 2] + "/" + path_patterns[len(path_patterns) - 1]
+        #print path#position
+
+        if(path_patterns[len(path_patterns)-1].isdigit()):
+            fp = open(os.path.join(root,name), 'r')
+            lines = fp.readlines()
+            html_doc = "".join(lines)
+            #until here html opened
+            for line in lines:
+                line = re.sub(r'\<.*?\>', " ", line)
+
+                for word in re.sub(r'\W', " ", line).split():
+                    word = word.lower()
+                    if word.isalpha() and len(word)<50:
+                        counter += 1
+                        if words_numbers.__contains__(word):
+                            words_numbers[word] += 1
+                        else:
+                            words_numbers[word] = 1
+            #until here I got words and frenquncy in this document
+
+            in_tags = tag_ranking(html_doc)
+            #print in_tags
+            #collect all datas
+            #print counter
+            for item in words_numbers:
+                if not item in stopword_list:
+                    result = item + " :TF " + str(round(float(words_numbers[item])/counter,4))
+                else:
+                    tesult = item + " :TF " + str(0)
+                if in_tags.__contains__(item):
+                    print result + "  Tags: "+ str(in_tags[item])
+                #else:
+                #    print result + "  Tags: "+ str(0)
+            #time.sleep(2)
+
+        #refer print round(float(13)/524,3)
+
